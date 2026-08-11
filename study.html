@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Study</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="study.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <a href="flashcards.html" class="back-link">← Deck</a>
+  <h1 id="deck-title">Study</h1>
+
+  <div id="progress-text"></div>
+
+  <div id="study-area">
+    <div id="flashcard-flip-container">
+        <div id="flashcard-inner">
+            <div class="card-face" id="card-face-front">
+        <div id="card-front-text"></div>
+            </div>
+            <div class="card-face card-face-back" id="card-face-back">
+                <div id="card-back-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <button id="show-answer-btn" class="primary-btn">Show Answer</button>
+
+    <div id="rating-buttons" class="hidden">
+      <button class="rating-btn rating-again" data-rating="again">Again</button>
+      <button class="rating-btn rating-hard" data-rating="hard">Hard</button>
+      <button class="rating-btn rating-good" data-rating="good">Good</button>
+      <button class="rating-btn rating-easy" data-rating="easy">Easy</button>
+    </div>
+  </div>
+
+  <p id="empty-message" class="empty-message hidden">No cards due right now. 🎉</p>
+
+  <script src="shared.js"></script>
+  <script src="study.js"></script>
+</body>
+</html>

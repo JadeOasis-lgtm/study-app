@@ -1,0 +1,508 @@
+:root {
+  /* :root refers to the whole document — variables defined here are 
+     accessible from anywhere in the stylesheet. This is the standard 
+     place to declare "global" custom properties */
+
+  --accent: #ff6b6b; /* the ACTIVE accent color — this is the one 
+                         everything below will reference, and the 
+                         one JavaScript will change */
+
+  --color-pomodoro: #ff6b6b; /* red — your original color */
+  --color-short: #6bcf7f;    /* green — calm, "quick recharge" feeling */
+  --color-long: #4d96ff;     /* blue — cooler, "longer rest" feeling */
+}
+
+/* * { } applies to EVERY element on the page. This is a common "reset" 
+   trick to remove browser-default spacing so we start from a clean slate */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  /* box-sizing: border-box makes width/height calculations include 
+     padding and border, instead of adding on top of them. Saves a lot 
+     of headaches later — just always include this. */
+}
+
+body {
+  min-height: 100vh;
+  padding-top: max(70px, calc(env(safe-area-inset-top) + 60px));
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* These four lines use "flexbox" — a layout system for arranging 
+     elements. This particular combo stacks everything vertically 
+     and centers it both horizontally and vertically on the screen. 
+     This is THE most common way apps center their content. */
+
+  background-color: #1e1e2f;
+  /* Dark background — feels more "app-like" than plain white */
+
+  font-family: -apple-system, sans-serif;
+  /* -apple-system tells iOS to use its native font (San Francisco), 
+     so it feels right at home on an iPhone. sans-serif is the fallback 
+     for other devices */
+
+  color: white;
+  /* Default text color, since we have a dark background now */
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  /* rem is a unit relative to the browser's base font size — using 
+     rem/em instead of fixed pixels makes sizing scale better across 
+     devices */
+}
+
+#timer-display {
+  font-size: 4rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  /* The # selects an element by its id — remember, we gave our 
+     timer div id="timer-display" back in the HTML */
+}
+
+#controls {
+  display: flex;
+  gap: 12px;
+  /* Flexbox again, but this time just to lay the buttons out in a 
+     row with even spacing between them (gap) instead of stacking */
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  /* border-radius rounds the corners — small details like this are 
+     a big part of why an app "feels" polished */
+
+  background-color: var(--accent);
+  color: white;
+  cursor: pointer;
+  /* cursor: pointer only really matters on desktop (shows a hand 
+     icon on hover) but costs nothing to include */
+
+    transition: transform 0.1s ease, opacity 0.1s ease, background-color 0.3s ease;
+  /* By default, CSS changes happen INSTANTLY — one frame it's one 
+     way, the next frame it's changed, no animation.
+     "transition" tells the browser: "whenever transform or opacity 
+     changes on this element, animate smoothly between the old and 
+     new value over 0.1 seconds" instead of snapping. "ease" just 
+     controls the pacing of that animation (starts/ends slightly 
+     slower than the middle — feels more natural than a flat, 
+     constant speed). */
+}
+
+button:active {
+  /* :active is a "pseudo-class" — styles that only apply during a 
+     specific state. This one fires while the button is being pressed, 
+     giving instant visual feedback that the tap registered */
+  opacity: 0.7;
+
+  transform: scale(0.95);
+  /* transform lets you visually shift an element without affecting 
+     the actual page layout — move it, rotate it, or here, scale it.
+     scale(0.95) shrinks the button to 95% of its normal size.
+     Combined with the transition above, this creates a quick, 
+     satisfying "squish" the instant you press down — much more 
+     noticeable than opacity alone. */
+}
+
+
+
+#streak-display {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  opacity: 0.85;
+}
+
+
+
+#mode-select {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  /* Same flexbox row trick we used for #controls */
+}
+
+
+.mode-btn {
+  /* Notice the DOT here instead of #. That's what makes this a 
+     CLASS selector — it applies to every element with class="mode-btn", 
+     not just one specific element */
+
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 20px;
+  background-color: #2e2e42;
+  color: #aaa;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+.mode-btn.active {
+  /* Two class selectors stuck together with NO space between them 
+     means "an element that has BOTH classes." This only matches 
+     <button class="mode-btn active">, not just any .mode-btn */
+
+  background-color:var(--accent);
+  color: white;
+}
+
+
+
+#sound-select {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#sound-select label {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+#ambient-sound {
+  appearance: none;
+  -webkit-appearance: none;
+  /* appearance: none strips away the browser/OS's default dropdown 
+     styling (that plain gray box with the built-in arrow). Safari 
+     specifically needs the -webkit- prefixed version too, or it 
+     ignores the unprefixed one. */
+
+  background-color: #2e2e42;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 32px 8px 12px;
+  /* extra padding on the right (32px) leaves room for the custom 
+     arrow we're about to add, so text doesn't overlap it */
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='white'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+  /* Since appearance: none removed the built-in dropdown arrow too, 
+     we draw our own tiny triangle directly as CSS — no image file 
+     needed, it's just SVG code written inline as text */
+}
+
+#ambient-sound:focus {
+  outline: 2px solid var(--accent);
+  /* Gives clear visual feedback when the dropdown is focused/active, 
+     matching your accent color */
+}
+
+
+#stats-display {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+
+#weekly-histogram {
+  display: flex;
+  align-items: flex-end; /* bars grow UPWARD from the bottom */
+  justify-content: space-between;
+  height: 120px;
+  gap: 8px;
+  width: 280px;
+  margin-bottom: 30px;
+}
+
+.bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1; /* each wrapper takes equal width, splitting the row evenly */
+  height: 100%;
+}
+
+.bar {
+  width: 100%;
+  background-color: var(--accent);
+  border-radius: 4px 4px 0 0;
+  min-height: 2px; /* so a 0-minute day still shows a faint sliver, not nothing */
+  transition: height 0.3s ease background-color 0.3s ease; /* smoothly animates when values change */
+}
+
+.bar-label {
+  font-size: 0.7rem;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.bar-minutes {
+  font-size: 0.65rem;
+  color: #aaa;
+  margin-bottom: 2px;
+}
+
+
+
+#goal-section {
+  width: 280px;
+  margin-bottom: 30px;
+}
+
+#goal-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+#daily-goal {
+  width: 60px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  background-color: #2e2e42;
+  color: white;
+  font-size: 16px;
+}
+
+#goal-progress-bar {
+  width:100%;
+  height: 12px;
+  background-color: #2e2e42;
+  border-radius: 6px;
+  overflow: hidden;
+  /* overflow: hidden clips the inner fill bar to this container's 
+     rounded corners — without it, the fill's corners would be 
+     square even though the track's are round */
+}
+
+#goal-progress-fill {
+  height: 100%;
+  width: 0%; /* starts empty — JS will update this */
+  background-color: var(--accent);
+  transition: width 0.3s ease, background-color 0.3s ease;
+  /* animates smoothly whenever we change the width from JS, instead 
+     of jumping instantly */
+}
+
+#goal-percentage {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-top: 6px;
+  text-align: right;
+}
+
+
+#goal-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Hides Chrome/Edge/Safari-on-desktop's built-in spinner arrows */
+#daily-goal::-webkit-inner-spin-button,
+#daily-goal::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stepper-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0; /* Overrides the inherited 12px 24px from the generic button rule */
+  display: flex;
+  align-items: center; /* Vertically centers the symbol */
+  justify-content: center; /* Horizontally centers the symbol */
+  border: none;
+  border-radius: 6px;
+  background-color: #2e2e42;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.stepper-btn:hover {
+  background-color: var(--accent)
+}
+
+.stepper-btn:active {
+  transform: scale(0.9); /* same "press" feedback pattern as your other buttons */
+}
+
+
+#daily-goal:focus {
+  outline: none;
+  /* outline: none removes the browser's default (usually blue) 
+     focus ring entirely */
+
+  box-shadow: 0 0 0 2px var(--accent);
+  /* box-shadow with no blur (the two 0s) and a 2px spread creates a 
+     clean colored ring around the box — this is the standard modern 
+     replacement for outline, since it respects border-radius 
+     (rounded corners) while outline draws a harsh rectangle */
+}
+
+#daily-goal:hover {
+  background-color: #3a3a52; /* slightly lighter than the base #2e2e42, subtle hover feedback */
+}
+
+
+#duration-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+  width: 280px;
+}
+
+.duration-input-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.duration-input {
+  width: 60px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  background-color: #2e2e42;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+}
+
+.duration-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.duration-input::-webkit-inner-spin-button,
+.duration-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+#theme-select {
+  position: fixed;
+  /* fixed = positioned relative to the SCREEN, not the normal document 
+     flow — it stays put in the corner regardless of scrolling, and 
+     doesn't push your centered content around at all */
+
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  /* env(safe-area-inset-top/right) reads how much space the notch/
+     Dynamic Island actually takes up on THIS specific device. max() 
+     picks whichever is bigger: a normal 16px on devices with no notch, 
+     or more space automatically on devices that need it */
+
+  z-index: 10;
+  /* z-index controls stacking order — higher numbers sit ON TOP of 
+     lower ones. Since this is "fixed" and could otherwise end up 
+     visually behind/under other elements, this guarantees it stays 
+     clickable above everything else */
+
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#theme-select.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  /* Fades out AND drifts slightly upward — feels more natural than 
+     just vanishing in place */
+
+  pointer-events: none;
+  /* Without this, the dropdown would still be technically clickable 
+     even while invisible — pointer-events: none makes it truly 
+     inert while hidden, not just visually gone */
+}
+
+#theme-picker {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #2e2e42;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 28px 6px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='white'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 9px 5px;
+  /* Same custom-dropdown-arrow trick we used for #ambient-sound */
+}
+
+#theme-picker:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+
+#subject-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+
+#subject-picker {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #2e2e42;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 32px 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='white'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+}
+
+#new-subject-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+
+#new-subject-row.hidden {
+  display: none;
+}
+
+
+#new-subject-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #2e2e42;
+  color: white;
+  font-size: 0.9rem;
+}
+
+
+#new-subject-confirm {
+  padding: 6px 14px;
+}

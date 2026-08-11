@@ -1,0 +1,123 @@
+#progress-text {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-bottom: 20px;
+  min-height: 1em;
+}
+
+#study-area {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#study-area.hidden {
+  display: none;
+}
+
+#flashcard-flip-container {
+  width: 100%;
+  min-height: 160px;
+  perspective: 1000px;
+  /* perspective creates the 3D "depth" the flip happens within — 
+     without it, rotateY would just squash the card flat instead of 
+     looking like it's turning in space */
+  margin-bottom: 20px;
+}
+
+#flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 160px;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  /* preserve-3d tells the browser "let my children keep their own 
+     individual 3D positions" — without it, the two card-face divs 
+     would get flattened into 2D and the illusion would break */
+  cursor: pointer;
+}
+
+#flashcard-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  min-height: 160px;
+  backface-visibility: hidden;
+  /* This is the actual trick: it hides an element once it's rotated 
+     more than 90° away from you. Both faces exist and rotate 
+     together, but at any moment you can only ever SEE the one 
+     currently facing you */
+  background-color: #2e2e42;
+  border-radius: 16px;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.card-face-back {
+  transform: rotateY(180deg);
+  /* Pre-rotated 180° from the start — since the WHOLE #flashcard-inner 
+     also rotates 180° when flipped, this face ends up perfectly 
+     right-side-up and facing you at that point, instead of upside-down */
+}
+
+.primary-btn {
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#rating-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+#rating-buttons.hidden {
+  display: none;
+}
+
+.rating-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.9rem;
+  color: white;
+  cursor: pointer;
+}
+
+/* Colors chosen to intuitively match difficulty — red (struggling) 
+   through blue (mastered), reusing the same color language as your 
+   subject/theme system elsewhere in the app */
+.rating-again { background-color: #ff6b6b; }
+.rating-hard { background-color: #ffa94d; }
+.rating-good { background-color: #6bcf7f; }
+.rating-easy { background-color: #4d96ff; }
+
+.empty-message {
+  color: #aaa;
+  font-size: 0.95rem;
+  text-align: center;
+  width: 280px;
+}
+
+.empty-message.hidden {
+  display: none;
+}
