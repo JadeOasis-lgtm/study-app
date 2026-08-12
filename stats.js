@@ -26,13 +26,17 @@ function updateSummaryCards() {
     })
     .reduce(function(total, entry) { return total + entry.minutes; }, 0);
 
-  const thisMonday = getMonday(now); // reuses the same helper the histogram already relies on
+  const thisMonday = getMonday(now);
 
   const weekMinutes = sessionHistory
     .filter(function(entry) {
         return new Date(entry.date) >= thisMonday;
     })
     .reduce(function(total, entry) { return total + entry.minutes; }, 0);
+
+  const totalMinutes = sessionHistory.reduce(function(total, entry) { // ADD THIS BACK
+    return total + entry.minutes;
+  }, 0);
 
   document.getElementById("today-minutes").textContent = Math.round(todayMinutes);
   document.getElementById("week-minutes").textContent = Math.round(weekMinutes);
