@@ -91,8 +91,13 @@ function updateHistogram() {
       return total + entry.minutes;
     }, 0);
 
+    // NEW: count how many card-review entries fall on this same day
+    const dayCardCount = cardReviewHistory.filter(function(entry) {
+      return new Date(entry.date).toDateString() === dayString;
+    }).length;
+
     const label = day.toLocaleDateString("en-US", { weekday: "short" });
-    days.push({ label: label, total: dayTotal, bySubject: minutesBySubject });
+    days.push({ label: label, total: dayTotal, bySubject: minutesBySubject, cardCount: dayCardCount }); // ADDED cardCount
   }
 
   const maxMinutes = Math.max(...days.map(function(d) { return d.total; }), 1);
@@ -205,15 +210,17 @@ function buildTooltip(day, subjects) {
   const tooltip = document.createElement("div");
   tooltip.className = "bar-tooltip";
 
-  const hasAnyData = Object.keys(day.bySubject).length > 0;
-  if (!hasAnyData) {
-    tooltip.textContent = "No sessions";
+  const hasMinutesData = Object.keys(day.bySubject).length > 0;
+  const hasCardData = day.cardCount > 0;
+
+  if (!hasMinutesData && !hasCardData) {
+    tooltip.textContent = "No activity";
     return tooltip;
   }
 
   subjects.forEach(function(subject) {
     const mins = day.bySubject[subject.name];
-    if (!mins) return; // skip subjects with nothing logged THIS specific day
+    if (!mins) return;
 
     const row = document.createElement("div");
     row.className = "tooltip-row";
@@ -246,6 +253,14 @@ function buildTooltip(day, subjects) {
     tooltip.appendChild(row);
   }
 
+  // NEW: a plain text row (no color swatch) showing this day's card count
+  if (hasCardData) {
+    const cardRow = document.createElement("div");
+    cardRow.className = "tooltip-row";
+    cardRow.textContent = `🗂️ ${day.cardCount} card${day.cardCount === 1 ? "" : "s"} reviewed`;
+    tooltip.appendChild(cardRow);
+  }
+
   return tooltip;
 }
 
@@ -276,6 +291,11 @@ function updateLastWeekSummary() {
   document.getElementById("last-week-total").textContent = Math.round(lastWeekMinutes);
   document.getElementById("last-week-average").textContent = Math.round(average);
 }
+
+//#region flashcards
+
+const cardReviewHistory = getCardReviewHistory();
+
 
 updateSummaryCards();
 updateBestDay();

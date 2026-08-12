@@ -56,8 +56,6 @@ function addSubject(name) {
 //#endregion
 
 
-
-
 //#region streak calculation
 function calculateStreak() {
   const goalHistory = JSON.parse(localStorage.getItem("goalHistory")) || {};
@@ -115,6 +113,29 @@ if (dueBadge) {
     dueBadge.textContent = dueCount;
     dueBadge.classList.remove("hidden");
   }
+}
+
+//#endregion
+
+//#region flashcard count
+
+function getCardReviewHistory() {
+  return JSON.parse(localStorage.getItem("cardReviewHistory")) || [];
+}
+
+function saveCardReviewHistory(history) {
+  localStorage.setItem("cardReviewHistory", JSON.stringify(history));
+}
+
+// One entry per card reviewed — deliberately separate from 
+// sessionHistory/streak/goal, since this isn't meant to touch those at all
+function recordCardReview(subject) {
+  const history = getCardReviewHistory();
+  history.push({
+    date: new Date().toISOString(),
+    subject: subject || "None"
+  });
+  saveCardReviewHistory(history);
 }
 
 //#endregion

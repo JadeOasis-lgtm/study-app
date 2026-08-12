@@ -206,3 +206,37 @@
   /* flex-shrink: 0 stops this tiny square from getting squished if 
      the subject name text runs long */
 }
+
+#card-summary-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  width: 280px;
+  margin-bottom: 20px;
+}
+
+.section-heading {
+  font-size: 0.95rem;
+  color: #aaa;
+  width: 280px;
+  margin-bottom: 10px;
+}
+
+#card-histogram {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 120px;
+  gap: 8px;
+  width: 280px;
+  margin-bottom: 12px;
+}
+
+#card-histogram-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 280px;
+  margin-bottom: 20px;
+  justify-content: center;
+}

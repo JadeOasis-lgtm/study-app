@@ -127,6 +127,8 @@ ratingButtons.querySelectorAll(".rating-btn").forEach(function(btn) {
 
     scheduleCard(currentCard, rating);
 
+    recordCardReview(currentDeck);
+
     // Write the updated card back into the FULL card list (not just 
     // the queue), since the queue is only today's subset
     const allCards = getCards();
