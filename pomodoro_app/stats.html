@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Study Stats</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="stats.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+
+
+
+<body>
+  <a href="index.html" class="back-link">← Home</a>
+  <h1>Study Stats</h1>
+
+  <div id="streak-display">🔥 Streak: 0</div>
+  <!-- shared.js automatically fills this in, same as on the home page -->
+
+  <div id="summary-cards">
+    <div class="stat-card">
+      <div class="stat-value" id="today-minutes">0</div>
+      <div class="stat-label">Minutes Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="week-minutes">0</div>
+      <div class="stat-label">This Week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="total-minutes">0</div>
+      <div class="stat-label">All-Time Minutes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="best-day">0</div>
+      <div class="stat-label">Best Day (min)</div>
+    </div>
+  </div>
+
+  <div id="last-week-summary">
+    <div class="mini-stat">
+      <div class="mini-stat-value" id="last-week-total">0</div>
+      <div class="mini-stat-label">Last Week Total (min)</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-value" id="last-week-average">0</div>
+      <div class="mini-stat-label">Last Week Daily Average (min)</div>
+    </div>
+  </div>
+
+
+  <div id="weekly-histogram"></div>
+
+  <div id="histogram-legend"></div>
+
+  <div id="card-summary-cards">
+    <div class="stat-card">
+      <div class="stat-value" id="cards-today">0</div>
+      <div class="stat-label">Cards Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="cards-week">0</div>
+      <div class="stat-label">Cards This Week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="cards-alltime">0</div>
+      <div class="stat-label">Cards All-Time</div>
+    </div>
+  </div>
+
+<h2 class="section-heading">Cards Reviewed</h2>
+<div id="card-histogram"></div>
+<div id="card-histogram-legend"></div>  
+    
+  <script src="shared.js"></script>
+  <script src="stats.js"></script>
+</body>
+</html>

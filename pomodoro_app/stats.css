@@ -1,0 +1,242 @@
+#summary-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 280px;
+  margin-bottom: 30px;
+  /* Same grid tool from your nav buttons — a natural fit anywhere 
+     you want a genuine 2D layout instead of a single row or column */
+}
+
+.stat-card {
+  background-color: #2e2e42;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+/* Same histogram styling as pomodoro.css, duplicated here since 
+   stats.css is its own separate file — a bit repetitive, but keeps 
+   this page fully self-contained and doesn't risk touching your 
+   already-working Pomodoro page */
+#weekly-histogram {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 120px;
+  gap: 8px;
+  width: 280px;
+  margin-bottom: 30px;
+}
+
+.bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  height: 100%;
+}
+
+.bar-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  /* column-reverse stacks children bottom-to-top instead of top-to-
+     bottom — so the FIRST segment we add in JS ends up at the 
+     bottom of the bar, which feels more natural for a stacked chart */
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+  min-height: 2px;
+  transition: height 0.3s ease;
+}
+
+.bar-segment {
+  width: 100%;
+  /* No fixed height here on purpose — each segment's height comes 
+     from its "flex" value in JS below, which works as a RATIO. If 
+     one segment has flex: 20 and another flex: 10, the first 
+     automatically renders exactly twice as tall — no percentage 
+     math needed anywhere */
+}
+
+#histogram-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 280px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: #aaa;
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.bar-label {
+  font-size: 0.7rem;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.bar-minutes {
+  font-size: 0.65rem;
+  color: #aaa;
+  margin-bottom: 2px;
+}
+
+
+#last-week-summary {
+  display: flex;
+  gap: 12px;
+  width: 280px;
+  margin-bottom: 16px;
+}
+
+.mini-stat {
+  flex: 1;
+  background-color: #2e2e42;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.mini-stat-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.mini-stat-label {
+  font-size: 0.7rem;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.bar-wrapper {
+  position: relative; /* NEW — lets the tooltip position itself 
+                          relative to THIS specific wrapper, instead 
+                          of relative to the whole page */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  height: 100%;
+}
+
+.bar-tooltip {
+  position: absolute;
+  bottom: 100%;
+  /* bottom: 100% means "sit directly above my own top edge" — since 
+     the wrapper's top edge is wherever the minutes-number currently 
+     sits, this floats the tooltip just above that */
+
+  left: 50%;
+  transform: translateX(-50%);
+  /* Centers the tooltip horizontally over the bar, regardless of 
+     the tooltip's actual width */
+
+  margin-bottom: 8px;
+  background-color: #2e2e42;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  z-index: 5;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  /* Hidden by default — the two rules below are what actually reveal it */
+}
+
+.bar-wrapper:hover .bar-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  /* Desktop: reveals automatically on mouse hover */
+}
+
+.bar-wrapper.show-tooltip .bar-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  /* Touch: reveals when JS adds this class after a tap — see Step 2 */
+}
+
+.tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+
+.tooltip-row:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  /* flex-shrink: 0 stops this tiny square from getting squished if 
+     the subject name text runs long */
+}
+
+#card-summary-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  width: 280px;
+  margin-bottom: 20px;
+}
+
+.section-heading {
+  font-size: 0.95rem;
+  color: #aaa;
+  width: 280px;
+  margin-bottom: 10px;
+}
+
+#card-histogram {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 120px;
+  gap: 8px;
+  width: 280px;
+  margin-bottom: 12px;
+}
+
+#card-histogram-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 280px;
+  margin-bottom: 20px;
+  justify-content: center;
+}

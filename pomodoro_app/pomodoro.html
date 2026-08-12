@@ -1,0 +1,187 @@
+<!-- Tells the browser this is a modern HTMLdocument -->
+<!DOCTYPE html>
+
+<html lang="en">
+<!-- <html> wraps the whole page. lang="en" tells browsers/screen readers the page is in English -->
+
+<head>
+  <!-- The <head> holds info ABOUT the page — nothing in here shows up visually -->
+
+  <meta charset="UTF-8">
+  <!-- Sets the character encoding so text, symbols, emojis, etc. display correctly -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="stylesheet" href="shared.css">
+   <link rel="stylesheet" href="pomodoro.css">
+   <!-- Connects our CSS file so we can style the page -->
+
+  <title>Pomodoro Timer</title>
+  <!-- Text shown in the browser tab / home screen icon label later -->
+
+    <!--for the app-->
+    <link rel="manifest" href="manifest.json">
+    <!-- Points the browser at the manifest file we just created -->
+
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <!-- iOS specifically looks for THIS tag for the home screen icon, 
+        separately from the icons listed in manifest.json -->
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Tells iOS to launch this in standalone (no browser bar) mode 
+        when opened from the home screen -->
+
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Styles the iPhone's status bar (clock/battery area) to blend 
+        with your dark theme instead of showing a jarring white bar -->
+
+    <meta name="apple-mobile-web-app-title" content="Pomodoro">
+    <!-- The name shown under the icon on iOS specifically -->
+    <meta name="mobile-web-app-capable" content="yes">
+
+</head>
+
+
+
+
+<body>
+<!-- Everything the user actually SEES goes inside <body> -->
+  <a href="index.html" class="back-link">← Home</a>
+    <div id="theme-select">
+        <select id="theme-picker">
+            <option value="red">🔴 Red</option>
+            <option value="green">🟢 Green</option>
+            <option value="blue">🔵 Blue</option>
+            <option value="purple">🟣 Purple</option>
+        </select>
+    </div>
+
+  <h1>Pomodoro Timer</h1>
+  <!-- h1 = a top-level heading. Browsers style it big and bold by default -->
+  
+
+   <div id="streak-display">🔥 Streak: 0</div>
+   <!-- Will show how many Pomodoro sessions you've completed -->
+   
+
+    
+   <div id="stats-display">Today: 0 · This Week: 0</div>
+   
+   <div id="weekly-histogram"></div>
+   
+<!--Goal Number-->
+<div id="goal-section">
+  <div id="goal-input-row">
+    <label for="daily-goal">Daily Goal (minutes):</label>
+
+    <div id="goal-stepper">
+      <button type="button" id="goal-decrease" class="stepper-btn">−</button>
+      <input type="number" id="daily-goal" min="1" value="60">
+      <button type="button" id="goal-increase" class="stepper-btn">+</button>
+    </div>
+  </div>
+
+
+  <!--Goal Progress-->
+  <div id="goal-progress-bar">
+    <div id="goal-progress-fill"></div>
+  </div>
+
+  <div id="goal-percentage">0%</div>
+</div>
+
+<!--Custom Durations-->
+
+<div id="duration-settings">
+  <div class="duration-input-row">
+    <label for="pomodoro-duration">Pomodoro (min):</label>
+    <input type="number" id="pomodoro-duration" class="duration-input" min="1" value="25">
+  </div>
+  <div class="duration-input-row">
+    <label for="short-duration">Short Break (min):</label>
+    <input type="number" id="short-duration" class="duration-input" min="1" value="5">
+  </div>
+  <div class="duration-input-row">
+    <label for="long-duration">Long Break (min):</label>
+    <input type="number" id="long-duration" class="duration-input" min="1" value="15">
+  </div>
+</div>
+
+
+ <!--Subject Picker-->
+ <div id="subject-select">
+  <label for="subject-picker">Studying:</label>
+  <select id="subject-picker">
+    <option value="">No subject</option>
+    <option value="__new__">+ Add New Subject</option>
+  </select>
+</div>
+
+<div id="new-subject-row" class="hidden">
+  <input type="text" id="new-subject-input" placeholder="Subject name">
+  <button type="button" id="new-subject-confirm">Add</button>
+</div>
+
+
+ <!--Modes-->
+  <div id="mode-select">
+    <button id="mode-pomodoro" class="mode-btn active">Pomodoro</button>
+    <button id="mode-short" class="mode-btn">Short Break</button>
+    <button id="mode-long" class="mode-btn">Long Break</button>
+  </div>
+  <!-- Notice these buttons each have a UNIQUE id (so JS can tell them 
+       apart individually) AND a SHARED class="mode-btn" (so CSS can 
+       style all three the same way at once). This is the difference: 
+       id = "the one specific element", class = "a group of elements 
+       that share something in common." -->
+   
+
+ <!--Sounds-->
+   <div id="sound-select">
+    <label for="ambient-sound">Focus Sound:</label>
+    <!-- <label> connects text to a form control. Clicking the label 
+        text will focus the dropdown too — good for accessibility -->
+
+    <select id="ambient-sound">
+        <!-- <select> creates a dropdown. Each <option> inside it is one 
+            choice. "value" is what your JS reads; the text between the 
+            tags is what the user actually sees -->
+
+        <option value="light_rain">Light Rain</option>
+        <option value="soothing_instrumental">Soothing Instrumental</option>
+        <option value="happy_instrumental">Happy Instrumental</option>
+        <option value="nature">Universal Tranquil Flow</option>
+        <option value="water">Water</option>
+        <option value="chill_study">Chill Study</option>
+        <option value="none">None</option>
+    </select>
+    </div>
+
+
+ <!--Timer-->
+  <div id="timer-display">25:00</div>
+  <!-- This will show the countdown. It's just plain text for now -->
+  <!-- the "id" lets our JavaScript find and update this specific element later -->
+
+
+ <!--Buttons-->
+  <div id="controls">
+    <!-- A container to group our buttons together -->
+
+    <button id="start-btn">Start</button>
+    <button id="pause-btn">Pause</button>
+    <button id="reset-btn">Reset</button>
+    <!-- Each button has its own id so JS can tell them apart and -->
+    <!-- attach different behavior to each one -->
+  </div>
+
+
+
+  <script src="shared.js"></script>
+  <script src="pomodoro.js"></script>
+  <!-- Loads our JavaScript file. We put this at the BOTTOM of body -->
+  <!-- so the browser reads and builds all the HTML above it FIRST -->
+  <!-- before running any JS that might need to find those elements -->
+</body>
+
+
+</html>

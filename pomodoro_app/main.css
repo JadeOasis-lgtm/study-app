@@ -1,0 +1,56 @@
+#nav-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  /* "fr" = fraction unit — 1fr 1fr splits available space into two 
+     EQUAL columns (and rows). Flexbox can approximate a grid, but 
+     it's fundamentally a ONE-dimensional layout tool; CSS Grid is 
+     built specifically for genuine rows-and-columns layouts like this */
+  gap: 16px;
+  width: 280px;
+  height: 280px;
+}
+
+.nav-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #2e2e42;
+  color: white;
+  text-decoration: none;
+  /* <a> tags are underlined and blue by default — text-decoration: 
+     none strips that, so it can look like a real button instead of 
+     a hyperlink */
+  border-radius: 16px;
+  font-size: 1rem;
+  text-align: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.nav-btn:active {
+  background-color: var(--accent);
+  transform: scale(0.96);
+}
+
+.nav-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: var(--accent);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.nav-badge.hidden {
+  display: none;
+}
