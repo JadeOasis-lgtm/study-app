@@ -34,11 +34,6 @@ function updateSummaryCards() {
     })
     .reduce(function(total, entry) { return total + entry.minutes; }, 0);
 
-  // NEW: no filter at all — every session ever recorded, all summed together
-  const totalMinutes = sessionHistory.reduce(function(total, entry) {
-    return total + entry.minutes;
-  }, 0);
-
   document.getElementById("today-minutes").textContent = Math.round(todayMinutes);
   document.getElementById("week-minutes").textContent = Math.round(weekMinutes);
   document.getElementById("total-minutes").textContent = Math.round(totalMinutes);
@@ -296,9 +291,30 @@ function updateLastWeekSummary() {
 
 const cardReviewHistory = getCardReviewHistory();
 
+function updateCardSummaryCards() {
+  const now = new Date();
+  const thisMonday = getMonday(now);
+
+  const todayCount = cardReviewHistory.filter(function(entry) {
+    return new Date(entry.date).toDateString() === now.toDateString();
+  }).length;
+
+  const weekCount = cardReviewHistory.filter(function(entry) {
+    return new Date(entry.date) >= thisMonday;
+  }).length;
+
+  document.getElementById("cards-today").textContent = todayCount;
+  document.getElementById("cards-week").textContent = weekCount;
+  document.getElementById("cards-alltime").textContent = cardReviewHistory.length;
+
+}
+
+//#endregion
+
 
 updateSummaryCards();
 updateBestDay();
 updateLastWeekSummary();
 updateHistogram();
-updateLegend(); 
+updateLegend();
+updateCardSummaryCards()
