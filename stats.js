@@ -144,8 +144,26 @@ function updateHistogram() {
 
     // Tap-to-toggle for touch devices, since :hover doesn't apply 
     // to a finger on a screen the way it does a mouse cursor
-    wrapper.addEventListener("click", function() {
-      wrapper.classList.toggle("show-tooltip");
+    
+
+    // Tap-to-toggle logic for touch & desktop
+    wrapper.addEventListener("click", function(e) {
+      // 1. Prevent the click from bubbling up to the document
+      e.stopPropagation();
+
+      // 2. Remember if THIS bar was already open before we clean up
+      const isAlreadyOpen = wrapper.classList.contains("show-tooltip");
+
+      // 3. CLOSE ALL OTHER TOOLTIPS on the screen first
+      document.querySelectorAll(".bar-wrapper.show-tooltip").forEach(function(openBar) {
+        openBar.classList.remove("show-tooltip");
+      });
+
+      // 4. If it WAS NOT open, open it now. 
+      // (If it WAS open, Step 3 already closed it, so tapping it again closes it!)
+      if (!isAlreadyOpen) {
+        wrapper.classList.add("show-tooltip");
+      }
     });
 
     wrapper.appendChild(minutesLabel);
@@ -290,6 +308,13 @@ function updateLastWeekSummary() {
   document.getElementById("last-week-total").textContent = Math.round(lastWeekMinutes);
   document.getElementById("last-week-average").textContent = Math.round(average);
 }
+
+// Close any open tooltip when tapping outside of bars
+document.addEventListener("click", function() {
+  document.querySelectorAll(".bar-wrapper.show-tooltip").forEach(function(openBar) {
+    openBar.classList.remove("show-tooltip");
+  });
+});
 
 //#region flashcards
 
