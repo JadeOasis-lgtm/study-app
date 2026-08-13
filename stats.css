@@ -175,10 +175,13 @@
   /* Hidden by default — the two rules below are what actually reveal it */
 }
 
-.bar-wrapper:hover .bar-tooltip {
-  opacity: 1;
-  pointer-events: auto;
-  /* Desktop: reveals automatically on mouse hover */
+
+/* Only apply hover effects on devices that actually support a mouse */
+@media (hover: hover) {
+  .bar-wrapper:hover .bar-tooltip {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .bar-wrapper.show-tooltip .bar-tooltip {
