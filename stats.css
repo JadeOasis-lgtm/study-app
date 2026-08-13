@@ -176,18 +176,18 @@
 }
 
 
-/* Only apply hover effects on devices that actually support a mouse */
-@media (hover: hover) {
+/* Only triggers if the device has a real cursor (mouse/trackpad) */
+@media (hover: hover) and (pointer: fine) {
   .bar-wrapper:hover .bar-tooltip {
     opacity: 1;
     pointer-events: auto;
   }
 }
 
+/* Touches rely solely on your JS class */
 .bar-wrapper.show-tooltip .bar-tooltip {
   opacity: 1;
   pointer-events: auto;
-  /* Touch: reveals when JS adds this class after a tap — see Step 2 */
 }
 
 .tooltip-row {
