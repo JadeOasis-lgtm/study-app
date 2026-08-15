@@ -2,17 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>To-Dos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do — Study App</title>
   <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="todo.css">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icons/icon-192.png">
 </head>
 <body>
   <a href="index.html" class="back-link">← Home</a>
-  <h1>To-Dos</h1>
-  <p>Coming soon!</p>
+  <h1>To-Do</h1>
+
+  <form id="add-todo-form">
+    <input type="text" id="todo-text-input" placeholder="What do you need to do?" required>
+    <select id="todo-subject-select">
+      <option value="">No subject</option>
+    </select>
+    <input type="date" id="todo-due-input">
+    <button type="submit">Add</button>
+  </form>
+
+  <ul id="todo-list"></ul>
+  <p id="todo-empty-message" class="hidden">Nothing on your list yet.</p>
 
   <script src="shared.js"></script>
   <script src="todo.js"></script>
