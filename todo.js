@@ -4,6 +4,10 @@ const todoSubjectSelect = document.getElementById("todo-subject-select");
 const todoDueInput = document.getElementById("todo-due-input");
 const todoList = document.getElementById("todo-list");
 const emptyMessage = document.getElementById("todo-empty-message");
+const newSubjectBtn = document.getElementById("new-subject-btn");
+const newSubjectContainer = document.getElementById("new-subject-container");
+const newSubjectInput = document.getElementById("new-subject-input");
+const confirmNewSubjectBtn = document.getElementById("confirm-new-subject-btn");
 
 function getTodos() {
   return JSON.parse(localStorage.getItem("todos")) || [];
@@ -16,8 +20,14 @@ function saveTodos(todos) {
 // Fill the subject dropdown from the same list Pomodoro/Flashcards use —
 // getSubjects() already exists in shared.js, so no new data source needed
 function populateSubjectDropdown() {
-  const subjects = getSubjects();
-  subjects.forEach(function(subject) {
+  todoSubjectSelect.innerHTML = "";
+
+  const noneOption = document.createElement("option");
+  noneOption.value = "";
+  noneOption.textContent = "No subject";
+  todoSubjectSelect.appendChild(noneOption);
+
+  getSubjects().forEach(function(subject) {
     const option = document.createElement("option");
     option.value = subject.name;
     option.textContent = subject.name;
@@ -124,6 +134,25 @@ addTodoForm.addEventListener("submit", function(event) {
 
   addTodoForm.reset();
   renderTodos();
+});
+
+
+newSubjectBtn.addEventListener("click", function() {
+  newSubjectContainer.classList.toggle("hidden");
+  newSubjectInput.focus();
+});
+
+confirmNewSubjectBtn.addEventListener("click", function() {
+  const name = newSubjectInput.value.trim();
+  if (name === "") return;
+
+  addSubject(name); // shared.js — adds {name, color} to the shared list, next color from the palette
+
+  populateSubjectDropdown();
+  todoSubjectSelect.value = name; // jump straight to the one you just made
+
+  newSubjectInput.value = "";
+  newSubjectContainer.classList.add("hidden");
 });
 
 populateSubjectDropdown();

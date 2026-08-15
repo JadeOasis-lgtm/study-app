@@ -55,3 +55,23 @@
   cursor: pointer;
   font-size: 16px;
 }
+
+#add-todo-form input,
+#add-todo-form select {
+  background: #2a2a3d;
+  color: #eee;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 16px; /* stays at 16px+ so iOS Safari doesn't auto-zoom on focus */
+  color-scheme: dark; /* hints the browser to render the native date-picker popup and dropdown list in dark mode too */
+}
+
+#add-todo-form input:focus,
+#add-todo-form select:focus {
+  outline: 2px solid var(--accent, #6c63ff);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* the little calendar icon defaults to black, invisible on dark backgrounds */
+}
