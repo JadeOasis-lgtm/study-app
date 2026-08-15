@@ -7,6 +7,9 @@ const flashcardInner = document.getElementById("flashcard-inner");
 const showAnswerBtn = document.getElementById("show-answer-btn");
 const ratingButtons = document.getElementById("rating-buttons");
 const emptyMessage = document.getElementById("empty-message");
+const browseNav = document.getElementById("browse-nav");
+const modeStudyBtn = document.getElementById("modeStudyBtn");
+const modeBrowseBtn = document.getElementById("modeBrowseBtn");
 
 // Reads the deck the "Study This Deck" button was clicked from — 
 // flashcards.js already saves this to localStorage every time the 
@@ -31,6 +34,8 @@ let queue = getCards().filter(function(card) {
 });
 
 let currentCard = null;
+let currentMode = "study"; // "study" (graded, SM-2) or "browse" (flip through, nothing saved)
+let browseIndex = 0; // which card in browse mode — browse doesn't consume a queue like study does
 
 // The actual spaced repetition algorithm — this is the heart of the feature
 function scheduleCard(card, rating) {
@@ -74,10 +79,22 @@ function scheduleCard(card, rating) {
   card.dueDate = due.toISOString();
 }
 
+function getBrowseCards() {
+  return getCards().filter(function(card) {
+    return card.deck === currentDeck;
+  });
+}
+
 function showNextCard() {
   flashcardInner.classList.remove("flipped");
   showAnswerBtn.classList.remove("hidden");
   ratingButtons.classList.add("hidden");
+  browseNav.classList.add("hidden");   
+
+  if (currentMode === "browse") {
+    showBrowseCard();                    
+    return;        
+  }                                              
 
   if (queue.length === 0) {
     studyArea.classList.add("hidden");
@@ -103,10 +120,46 @@ function showNextCard() {
   progressText.textContent = `${queue.length} card${queue.length === 1 ? "" : "s"} remaining`;
 }
 
+function showBrowseCard() {
+  const cards = getBrowseCards();
+
+  if (cards.length === 0) {
+    studyArea.classList.add("hidden");
+    emptyMessage.textContent = "No cards in this deck yet.";
+    emptyMessage.classList.remove("hidden");
+    progressText.textContent = "";
+    return;
+  }
+
+  studyArea.classList.remove("hidden");
+  emptyMessage.classList.add("hidden");
+
+  if (browseIndex >= cards.length) browseIndex = cards.length - 1;
+  if (browseIndex < 0) browseIndex = 0;
+
+  currentCard = cards[browseIndex];
+
+  const reverseMode = localStorage.getItem("reverseMode") === "true";
+  if (reverseMode) {
+    cardFrontText.textContent = currentCard.back;
+    cardBackText.textContent = currentCard.front;
+  } else {
+    cardFrontText.textContent = currentCard.front;
+    cardBackText.textContent = currentCard.back;
+  }
+
+  progressText.textContent = `Card ${browseIndex + 1} of ${cards.length}`;
+}
+
 function revealAnswer() {
   flashcardInner.classList.add("flipped");
   showAnswerBtn.classList.add("hidden");
-  ratingButtons.classList.remove("hidden");
+
+  if (currentMode === "browse") {
+    browseNav.classList.remove("hidden");
+  } else {
+    ratingButtons.classList.remove("hidden");
+  }
 }
 
 showAnswerBtn.addEventListener("click", revealAnswer);
@@ -116,6 +169,33 @@ showAnswerBtn.addEventListener("click", revealAnswer);
 // tapping again doesn't fight with the rating buttons underneath
 flashcardInner.addEventListener("click", function() {
   if (!flashcardInner.classList.contains("flipped")) revealAnswer();
+});
+
+document.getElementById("browse-prev-btn").addEventListener("click", function() {
+  browseIndex -= 1;
+  showNextCard();
+});
+
+document.getElementById("browse-next-btn").addEventListener("click", function() {
+  browseIndex += 1;
+  showNextCard();
+});
+
+modeStudyBtn.addEventListener("click", function() {
+  if (currentMode === "study") return;
+  currentMode = "study";
+  modeStudyBtn.classList.add("active");
+  modeBrowseBtn.classList.remove("active");
+  showNextCard();
+});
+
+modeBrowseBtn.addEventListener("click", function() {
+  if (currentMode === "browse") return;
+  currentMode = "browse";
+  browseIndex = 0;
+  modeBrowseBtn.classList.add("active");
+  modeStudyBtn.classList.remove("active");
+  showNextCard();
 });
 
 ratingButtons.querySelectorAll(".rating-btn").forEach(function(btn) {

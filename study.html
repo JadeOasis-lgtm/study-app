@@ -11,6 +11,12 @@
 </head>
 <body>
   <a href="flashcards.html" class="back-link">← Deck</a>
+
+  <div class="mode-toggle">
+    <button id="modeStudyBtn" class="mode-btn active">Study</button>
+    <button id="modeBrowseBtn" class="mode-btn">Browse</button>
+  </div>
+
   <h1 id="deck-title">Study</h1>
 
   <div id="progress-text"></div>
@@ -35,6 +41,11 @@
       <button class="rating-btn rating-good" data-rating="good">Good</button>
       <button class="rating-btn rating-easy" data-rating="easy">Easy</button>
     </div>
+  </div>
+
+  <div id="browse-nav" class="hidden">
+    <button id="browse-prev-btn">← Previous</button>
+    <button id="browse-next-btn">Next →</button>
   </div>
 
   <p id="empty-message" class="empty-message hidden">No cards due right now. 🎉</p>

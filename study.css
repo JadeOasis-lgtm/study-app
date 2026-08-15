@@ -121,3 +121,15 @@
 .empty-message.hidden {
   display: none;
 }
+
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+.mode-btn {
+  opacity: 0.5;
+}
+.mode-btn.active {
+  opacity: 1;
+}
