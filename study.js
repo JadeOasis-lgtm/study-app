@@ -34,8 +34,15 @@ let queue = getCards().filter(function(card) {
 });
 
 let currentCard = null;
-let currentMode = "study"; // "study" (graded, SM-2) or "browse" (flip through, nothing saved)
 let browseIndex = 0; // which card in browse mode — browse doesn't consume a queue like study does
+
+const urlParams = new URLSearchParams(window.location.search);
+let currentMode = urlParams.get("mode") === "browse" ? "browse" : "study";
+
+if (currentMode === "browse") {
+  modeBrowseBtn.classList.add("active");
+  modeStudyBtn.classList.remove("active");
+}
 
 // The actual spaced repetition algorithm — this is the heart of the feature
 function scheduleCard(card, rating) {

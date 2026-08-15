@@ -6,6 +6,7 @@ const newDeckInput = document.getElementById("new-deck-input");
 const newDeckConfirm = document.getElementById("new-deck-confirm");
 const noDeckMessage = document.getElementById("no-deck-message");
 const studyBtn = document.getElementById("study-btn");
+const browseBtn = document.getElementById("browse-btn");
 const addCardSection = document.getElementById("add-card-section");
 const cardFrontInput = document.getElementById("card-front-input");
 const cardBackInput = document.getElementById("card-back-input");
@@ -207,6 +208,11 @@ const reverseToggle = document.getElementById("reverse-toggle");
 studyBtn.addEventListener("click", function() {
   localStorage.setItem("reverseMode", reverseToggle.checked);
   window.location.href = "study.html";
+});
+
+browseBtn.addEventListener("click", function() {
+  localStorage.setItem("reverseMode", reverseToggle.checked);
+  window.location.href = "study.html?mode=browse";
 });
 
 //#endregion
