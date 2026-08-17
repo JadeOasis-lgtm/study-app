@@ -215,6 +215,20 @@ browseBtn.addEventListener("click", function() {
   window.location.href = "study.html?mode=browse";
 });
 
+
+const deleteDeckBtn = document.getElementById("delete-deck-btn");
+
+deleteDeckBtn.addEventListener("click", function() {
+  const name = deckPicker.value;
+  if (name === "" || name === "__new__") return;
+
+  const confirmed = confirm(`Delete "${name}"? This also deletes all its flashcards and to-dos. This can't be undone.`);
+  if (!confirmed) return;
+
+  deleteSubject(name); // shared.js
+  populateDeckDropdown();
+});
+
 //#endregion
 
 //#region editing cards

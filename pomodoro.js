@@ -154,6 +154,19 @@ newSubjectConfirm.addEventListener("click", function() {
   newSubjectRow.classList.add("hidden");
 });
 
+const deleteSubjectBtn = document.getElementById("delete-subject-btn");
+
+deleteSubjectBtn.addEventListener("click", function() {
+  const name = subjectPicker.value;
+  if (name === "" || name === "__new__") return; // nothing real selected
+
+  const confirmed = confirm(`Delete "${name}"? This also deletes all its flashcards and to-dos. This can't be undone.`);
+  if (!confirmed) return;
+
+  deleteSubject(name); // shared.js
+  populateSubjectDropdown();
+});
+
 populateSubjectDropdown(); // run once on page load
 
 //#endregion

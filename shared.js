@@ -53,6 +53,33 @@ function addSubject(name) {
   return newSubject;
 }
 
+// Deletes a subject/deck, along with every flashcard and to-do tagged
+// with it. sessionHistory and cardReviewHistory are deliberately left
+// alone — those are a record of study time that already happened,
+// not "content" that belongs to the subject.
+function deleteSubject(name) {
+  const subjects = getSubjects().filter(function(s) { return s.name !== name; });
+  saveSubjects(subjects);
+
+  const cards = JSON.parse(localStorage.getItem("flashcards")) || [];
+  const remainingCards = cards.filter(function(c) { return c.deck !== name; });
+  localStorage.setItem("flashcards", JSON.stringify(remainingCards));
+
+  const todos = JSON.parse(localStorage.getItem("todos")) || [];
+  const remainingTodos = todos.filter(function(t) { return t.subject !== name; });
+  localStorage.setItem("todos", JSON.stringify(remainingTodos));
+
+  // If the deleted subject was "currently selected" anywhere, clear
+  // that pointer so no page is left referencing a subject that no
+  // longer exists
+  if (localStorage.getItem("currentSubject") === name) {
+    localStorage.removeItem("currentSubject");
+  }
+  if (localStorage.getItem("currentDeck") === name) {
+    localStorage.removeItem("currentDeck");
+  }
+}
+
 //#endregion
 
 

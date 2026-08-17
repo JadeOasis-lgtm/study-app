@@ -155,5 +155,19 @@ confirmNewSubjectBtn.addEventListener("click", function() {
   newSubjectContainer.classList.add("hidden");
 });
 
+const deleteSubjectBtn = document.getElementById("delete-subject-btn");
+
+deleteSubjectBtn.addEventListener("click", function() {
+  const name = todoSubjectSelect.value;
+  if (name === "") return; // "No subject" selected — nothing to delete
+
+  const confirmed = confirm(`Delete "${name}"? This also deletes all its flashcards and to-dos. This can't be undone.`);
+  if (!confirmed) return;
+
+  deleteSubject(name); // shared.js
+  populateSubjectDropdown();
+  renderTodos(); // some todos may have just disappeared, so the list needs a re-render too
+});
+
 populateSubjectDropdown();
 renderTodos();
