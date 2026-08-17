@@ -169,7 +169,7 @@ deleteSubjectBtn.addEventListener("click", function() {
   renderTodos(); // some todos may have just disappeared, so the list needs a re-render too
 });
 
-\\
+//
 
 populateSubjectDropdown();
 renderTodos();
