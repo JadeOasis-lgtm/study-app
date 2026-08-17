@@ -4,7 +4,6 @@ const todoSubjectSelect = document.getElementById("todo-subject-select");
 const todoDueInput = document.getElementById("todo-due-input");
 const todoList = document.getElementById("todo-list");
 const emptyMessage = document.getElementById("todo-empty-message");
-const newSubjectBtn = document.getElementById("new-subject-btn");
 const newSubjectContainer = document.getElementById("new-subject-container");
 const newSubjectInput = document.getElementById("new-subject-input");
 const confirmNewSubjectBtn = document.getElementById("confirm-new-subject-btn");
@@ -20,18 +19,18 @@ function saveTodos(todos) {
 // Fill the subject dropdown from the same list Pomodoro/Flashcards use —
 // getSubjects() already exists in shared.js, so no new data source needed
 function populateSubjectDropdown() {
-  todoSubjectSelect.innerHTML = "";
+  todoSubjectSelect.querySelectorAll(".subject-option").forEach(function(opt) {
+    opt.remove();
+  });
 
-  const noneOption = document.createElement("option");
-  noneOption.value = "";
-  noneOption.textContent = "No subject";
-  todoSubjectSelect.appendChild(noneOption);
+  const addNewOption = todoSubjectSelect.querySelector('option[value="__new__"]');
 
   getSubjects().forEach(function(subject) {
     const option = document.createElement("option");
     option.value = subject.name;
     option.textContent = subject.name;
-    todoSubjectSelect.appendChild(option);
+    option.className = "subject-option";
+    todoSubjectSelect.insertBefore(option, addNewOption);
   });
 }
 
@@ -137,11 +136,6 @@ addTodoForm.addEventListener("submit", function(event) {
 });
 
 
-newSubjectBtn.addEventListener("click", function() {
-  newSubjectContainer.classList.toggle("hidden");
-  newSubjectInput.focus();
-});
-
 confirmNewSubjectBtn.addEventListener("click", function() {
   const name = newSubjectInput.value.trim();
   if (name === "") return;
@@ -169,7 +163,15 @@ deleteSubjectBtn.addEventListener("click", function() {
   renderTodos(); // some todos may have just disappeared, so the list needs a re-render too
 });
 
-//
+todoSubjectSelect.addEventListener("change", function() {
+  if (todoSubjectSelect.value === "__new__") {
+    newSubjectContainer.classList.remove("hidden");
+    newSubjectInput.focus();
+    todoSubjectSelect.value = ""; // snap back to "No subject" instead of visually sitting on "+ Add New Subject"
+  } else {
+    newSubjectContainer.classList.add("hidden");
+  }
+});
 
 populateSubjectDropdown();
 renderTodos();

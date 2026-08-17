@@ -14,15 +14,23 @@
 
   <form id="add-todo-form">
     <input type="text" id="todo-text-input" placeholder="What do you need to do?" required>
+
+
+
     <div class="subject-row">
-      <select id="todo-subject-select"></select>
-      <button type="button" id="new-subject-btn">+ New</button>
+      <select id="todo-subject-select">
+        <option value="">No subject</option>
+        <option value="__new__">+ Add New Subject</option>
+      </select>
       <button type="button" id="delete-subject-btn">🗑</button>
     </div>
     <div id="new-subject-container" class="hidden">
-        <input type="text" id="new-subject-input" placeholder="Subject name">
-        <button type="button" id="confirm-new-subject-btn">Add</button>
+      <input type="text" id="new-subject-input" placeholder="Subject name">
+      <button type="button" id="confirm-new-subject-btn">Add</button>
     </div>
+    
+
+
     <input type="date" id="todo-due-input">
     <button type="submit">Add</button>
   </form>
