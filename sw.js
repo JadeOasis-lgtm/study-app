@@ -3,13 +3,16 @@
 // intercepting network requests, which is what lets it serve files 
 // from a local cache instead of the internet.
 
-const CACHE_NAME = "pomodoro-cache-v8";
+const CACHE_NAME = "pomodoro-cache-v9";
 // Naming it with a version number lets us bust old caches later just 
 // by changing this string — you'll see how below
 
 // The "app shell" — every file needed for the app to fully function 
 // with zero internet connection
 const FILES_TO_CACHE = [
+  "calendar.css",
+  "calendar.html",
+  "calendar.js",
   "index.html",
   "main.css",
   "shared.css",
