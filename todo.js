@@ -8,14 +8,6 @@ const newSubjectContainer = document.getElementById("new-subject-container");
 const newSubjectInput = document.getElementById("new-subject-input");
 const confirmNewSubjectBtn = document.getElementById("confirm-new-subject-btn");
 
-function getTodos() {
-  return JSON.parse(localStorage.getItem("todos")) || [];
-}
-
-function saveTodos(todos) {
-  localStorage.setItem("todos", JSON.stringify(todos));
-}
-
 // Fill the subject dropdown from the same list Pomodoro/Flashcards use —
 // getSubjects() already exists in shared.js, so no new data source needed
 function populateSubjectDropdown() {

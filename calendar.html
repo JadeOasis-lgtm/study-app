@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar — Study App</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="calendar.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <a href="index.html" class="back-link">← Home</a>
+  <h1>Calendar</h1>
+
+  <div id="view-toggle">
+    <button id="view-day-btn" class="mode-btn" type="button">Day</button>
+    <button id="view-week-btn" class="mode-btn" type="button">Week</button>
+    <button id="view-month-btn" class="mode-btn active" type="button">Month</button>
+  </div>
+
+  <div id="calendar-nav">
+    <button id="prev-btn" type="button">←</button>
+    <span id="calendar-label"></span>
+    <button id="today-btn" type="button">Today</button>
+    <button id="next-btn" type="button">→</button>
+  </div>
+
+  <div id="calendar-grid" class="calendar-grid month-grid"></div>
+
+  <div id="add-todo-modal" class="hidden">
+    <div id="add-todo-modal-content">
+      <h3>Add To-Do</h3>
+      <input type="text" id="modal-todo-text" placeholder="What do you need to do?">
+      <select id="modal-todo-subject"></select>
+      <div id="modal-todo-date-display"></div>
+      <button type="button" id="modal-todo-confirm">Add</button>
+      <button type="button" id="modal-todo-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="calendar.js"></script>
+</body>
+</html>
