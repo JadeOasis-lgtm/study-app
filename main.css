@@ -1,15 +1,21 @@
 #nav-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  /* "fr" = fraction unit — 1fr 1fr splits available space into two 
-     EQUAL columns (and rows). Flexbox can approximate a grid, but 
-     it's fundamentally a ONE-dimensional layout tool; CSS Grid is 
-     built specifically for genuine rows-and-columns layouts like this */
-  gap: 16px;
+  /* Creates a 2-column layout */
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 12px; /* Adjust spacing between buttons as needed */
   width: 280px;
   height: 280px;
 }
+
+/* Centers the 5th button across both columns in the 3rd row */
+.nav-btn-centered {
+  grid-column: 1 / -1; 
+  justify-self: center;
+  width: 50%; /* Keeps it visually proportioned to a single grid cell */
+  box-sizing: border-box;
+}
+
+
 
 .nav-btn {
   position: relative;

@@ -18,10 +18,54 @@ let currentView = "month"; // "day" | "week" | "month" — only month renders fo
 let currentDate = new Date(); // the day/week/month currently on screen, moved by prev/next
 let modalTargetDate = null; // which day's "+" button opened the add modal
 
+function buildTodoChip(todo) {
+  const chip = document.createElement("div");
+  chip.className = "calendar-todo-chip" + (todo.completed ? " completed" : "");
+  chip.draggable = true;
+
+  // Drag-and-drop, half 1: this chip announces its own id when a drag starts
+  chip.addEventListener("dragstart", function(event) {
+    event.dataTransfer.setData("text/plain", todo.id);
+    chip.classList.add("dragging");
+  });
+  chip.addEventListener("dragend", function() {
+    chip.classList.remove("dragging");
+  });
+
+  if (todo.subject) {
+    const matching = getSubjects().find(function(s) { return s.name === todo.subject; });
+    chip.style.borderLeftColor = matching ? matching.color : "#888";
+  }
+
+  const text = document.createElement("span");
+  text.className = "calendar-todo-text";
+  text.textContent = todo.text;
+  text.addEventListener("click", function() {
+    openMovePopup(todo, chip);
+  });
+  chip.appendChild(text);
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.type = "button";
+  deleteBtn.className = "calendar-todo-delete";
+  deleteBtn.textContent = "×";
+  deleteBtn.addEventListener("click", function(event) {
+    event.stopPropagation(); // don't also trigger the move popup underneath
+    saveTodos(getTodos().filter(function(t) { return t.id !== todo.id; }));
+    renderCurrentView();
+  });
+  chip.appendChild(deleteBtn);
+
+  return chip;
+}
+
 // "YYYY-MM-DD" from a Date object — same format todo.js already stores
 // dueDate in, so calendar and to-do pages read/write identically
 function dateToString(date) {
-  return date.toISOString().split("T")[0];
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 //#region month grid generation
@@ -36,9 +80,9 @@ function getMonthGridDays(year, month) {
 
   // Padding from the end of the previous month, so day 1 lands under
   // the correct weekday column instead of always starting top-left
-  for (let i = startWeekday - 1; i >= 0; i--) {
-    days.push({ date: new Date(year, month, -i), inCurrentMonth: false });
-  }
+    for (let i = startWeekday; i > 0; i--) {
+    days.push({ date: new Date(year, month, 1 - i), inCurrentMonth: false });
+    }
 
   for (let day = 1; day <= daysInMonth; day++) {
     days.push({ date: new Date(year, month, day), inCurrentMonth: true });
@@ -93,45 +137,32 @@ function openMovePopup(todo, chipEl) {
   if (dateInput.showPicker) dateInput.showPicker(); // opens the native picker immediately, where supported
 }
 
-function buildTodoChip(todo) {
-  const chip = document.createElement("div");
-  chip.className = "calendar-todo-chip" + (todo.completed ? " completed" : "");
-  chip.draggable = true;
-
-  // Drag-and-drop, half 1: this chip announces its own id when a drag starts
-  chip.addEventListener("dragstart", function(event) {
-    event.dataTransfer.setData("text/plain", todo.id);
-    chip.classList.add("dragging");
-  });
-  chip.addEventListener("dragend", function() {
-    chip.classList.remove("dragging");
-  });
-
-  if (todo.subject) {
-    const matching = getSubjects().find(function(s) { return s.name === todo.subject; });
-    chip.style.borderLeftColor = matching ? matching.color : "#888";
+function openMovePopup(todo, chipEl) {
+  // Check if a popup is already open on this chip
+  const existing = chipEl.querySelector(".move-date-input");
+  if (existing) {
+    existing.remove(); // Toggle it closed if clicked again
+    return;
   }
 
-  const text = document.createElement("span");
-  text.className = "calendar-todo-text";
-  text.textContent = todo.text;
-  text.addEventListener("click", function() {
-    openMovePopup(todo, chip);
-  });
-  chip.appendChild(text);
+  const dateInput = document.createElement("input");
+  dateInput.type = "date";
+  dateInput.className = "move-date-input";
+  dateInput.value = todo.dueDate;
 
-  const deleteBtn = document.createElement("button");
-  deleteBtn.type = "button";
-  deleteBtn.className = "calendar-todo-delete";
-  deleteBtn.textContent = "×";
-  deleteBtn.addEventListener("click", function(event) {
-    event.stopPropagation(); // don't also trigger the move popup underneath
-    saveTodos(getTodos().filter(function(t) { return t.id !== todo.id; }));
-    renderCurrentView();
+  // Move the to-do when a new date is selected
+  dateInput.addEventListener("change", function() {
+    moveTodoToDate(todo.id, dateInput.value);
   });
-  chip.appendChild(deleteBtn);
 
-  return chip;
+  // Remove the input if the user clicks away without changing anything
+  dateInput.addEventListener("blur", function() {
+    dateInput.remove();
+  });
+
+  chipEl.appendChild(dateInput);
+  dateInput.focus();
+  if (dateInput.showPicker) dateInput.showPicker(); // Opens native picker
 }
 
 function renderMonthView() {
@@ -284,6 +315,13 @@ modalTodoConfirm.addEventListener("click", function() {
 });
 
 modalTodoCancel.addEventListener("click", closeAddForm);
+
+// Close the modal if the user clicks the dark background (outside the modal box)
+addTodoModal.addEventListener("click", function(event) {
+  if (event.target === addTodoModal) {
+    closeAddForm();
+  }
+});
 //#endregion
 
 switchView("month");
