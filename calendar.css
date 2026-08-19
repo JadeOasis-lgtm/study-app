@@ -42,6 +42,7 @@
   border-radius: 6px;
   padding: 6px;
   min-height: 90px;
+  max-height: 120px;   /* NEW — caps it, so a packed day scrolls internally instead of stretching the whole row */
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -89,6 +90,10 @@
 .calendar-todo-text {
   flex: 1;
   cursor: pointer;
+  min-width: 0;         /* NEW — see note below */
+  overflow: hidden;      /* NEW */
+  text-overflow: ellipsis; /* NEW */
+  white-space: nowrap;    /* NEW */
 }
 
 .calendar-todo-delete {
@@ -150,4 +155,35 @@
   padding: 10px;
   font-size: 16px;
   color-scheme: dark;
+}
+
+.week-grid .calendar-day {
+  min-height: 220px;
+  max-height: 320px;
+}
+
+.day-grid {
+  grid-template-columns: 1fr;
+}
+
+.day-grid .calendar-day {
+  max-height: none;
+  min-height: 300px;
+}
+
+.day-grid .calendar-day-number {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.day-grid .calendar-todo-text {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.day-grid .calendar-todo-chip {
+  font-size: 14px;
+  padding: 8px 10px;
 }

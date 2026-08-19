@@ -29,7 +29,11 @@ function populateSubjectDropdown() {
 // today's date as "YYYY-MM-DD" so it compares cleanly against dueDate,
 // which comes out of <input type="date"> in that same format
 function todayString() {
-  return new Date().toISOString().split("T")[0];
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function renderTodos() {

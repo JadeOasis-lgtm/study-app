@@ -14,16 +14,110 @@ const modalTodoDateDisplay = document.getElementById("modal-todo-date-display");
 const modalTodoConfirm = document.getElementById("modal-todo-confirm");
 const modalTodoCancel = document.getElementById("modal-todo-cancel");
 
-let currentView = "month"; // "day" | "week" | "month" — only month renders for real so far
-let currentDate = new Date(); // the day/week/month currently on screen, moved by prev/next
-let modalTargetDate = null; // which day's "+" button opened the add modal
+const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+let currentView = "month"; // "day" | "week" | "month"
+let currentDate = new Date();
+let modalTargetDate = null;
+
+// "YYYY-MM-DD" in LOCAL time — not toISOString(), which converts to UTC
+// first and can silently roll evening dates over to "tomorrow"
+function dateToString(date) {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function formatFullDate(date) {
+  return `${WEEKDAY_NAMES[date.getDay()]}, ${MONTH_NAMES[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
+//#region date range helpers
+function getMonthGridDays(year, month) {
+  const firstOfMonth = new Date(year, month, 1);
+  const startWeekday = firstOfMonth.getDay();
+
+  const lastOfMonth = new Date(year, month + 1, 0);
+  const daysInMonth = lastOfMonth.getDate();
+
+  const days = [];
+
+  for (let i = startWeekday; i > 0; i--) {
+    days.push({ date: new Date(year, month, 1 - i), inCurrentMonth: false });
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    days.push({ date: new Date(year, month, day), inCurrentMonth: true });
+  }
+  let nextMonthDay = 1;
+  while (days.length < 42) {
+    days.push({ date: new Date(year, month + 1, nextMonthDay), inCurrentMonth: false });
+    nextMonthDay++;
+  }
+
+  return days;
+}
+
+function getWeekDays(date) {
+  const start = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay());
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    days.push(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+  }
+  return days;
+}
+//#endregion
+
+function getTodosGroupedByDate() {
+  const grouped = {};
+  getTodos().forEach(function(todo) {
+    if (!todo.dueDate) return;
+    if (!grouped[todo.dueDate]) grouped[todo.dueDate] = [];
+    grouped[todo.dueDate].push(todo);
+  });
+  return grouped;
+}
+
+function moveTodoToDate(todoId, newDateStr) {
+  if (!newDateStr) return;
+  const todos = getTodos();
+  const todo = todos.find(function(t) { return t.id === todoId; });
+  if (!todo) return;
+  todo.dueDate = newDateStr;
+  saveTodos(todos);
+  renderCurrentView();
+}
+
+function openMovePopup(todo, chipEl) {
+  const existing = chipEl.querySelector(".move-date-input");
+  if (existing) {
+    existing.remove();
+    return;
+  }
+
+  const dateInput = document.createElement("input");
+  dateInput.type = "date";
+  dateInput.className = "move-date-input";
+  dateInput.value = todo.dueDate;
+
+  dateInput.addEventListener("change", function() {
+    moveTodoToDate(todo.id, dateInput.value);
+  });
+  dateInput.addEventListener("blur", function() {
+    dateInput.remove();
+  });
+
+  chipEl.appendChild(dateInput);
+  dateInput.focus();
+  if (dateInput.showPicker) dateInput.showPicker();
+}
 
 function buildTodoChip(todo) {
   const chip = document.createElement("div");
   chip.className = "calendar-todo-chip" + (todo.completed ? " completed" : "");
   chip.draggable = true;
 
-  // Drag-and-drop, half 1: this chip announces its own id when a drag starts
   chip.addEventListener("dragstart", function(event) {
     event.dataTransfer.setData("text/plain", todo.id);
     chip.classList.add("dragging");
@@ -50,7 +144,7 @@ function buildTodoChip(todo) {
   deleteBtn.className = "calendar-todo-delete";
   deleteBtn.textContent = "×";
   deleteBtn.addEventListener("click", function(event) {
-    event.stopPropagation(); // don't also trigger the move popup underneath
+    event.stopPropagation();
     saveTodos(getTodos().filter(function(t) { return t.id !== todo.id; }));
     renderCurrentView();
   });
@@ -59,154 +153,39 @@ function buildTodoChip(todo) {
   return chip;
 }
 
-// "YYYY-MM-DD" from a Date object — same format todo.js already stores
-// dueDate in, so calendar and to-do pages read/write identically
-function dateToString(date) {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
+// Shared by Month, Week, and Day — builds one day's full cell:
+// number/label, its to-do chips, the add button, and (optionally)
+// drag-and-drop drop handling
+function buildDayCell(date, todosByDate, todayStr, options) {
+  options = options || {};
+  const dateStr = dateToString(date);
 
-//#region month grid generation
-function getMonthGridDays(year, month) {
-  const firstOfMonth = new Date(year, month, 1);
-  const startWeekday = firstOfMonth.getDay(); // 0 = Sunday
+  const cell = document.createElement("div");
+  cell.className = "calendar-day";
+  if (options.otherMonth) cell.classList.add("other-month");
+  if (dateStr === todayStr) cell.classList.add("today");
 
-  const lastOfMonth = new Date(year, month + 1, 0); // day 0 of next month = last day of this one
-  const daysInMonth = lastOfMonth.getDate();
+  const dayNumber = document.createElement("div");
+  dayNumber.className = "calendar-day-number";
+  dayNumber.textContent = options.fullLabel ? formatFullDate(date) : date.getDate();
+  cell.appendChild(dayNumber);
 
-  const days = [];
-
-  // Padding from the end of the previous month, so day 1 lands under
-  // the correct weekday column instead of always starting top-left
-    for (let i = startWeekday; i > 0; i--) {
-    days.push({ date: new Date(year, month, 1 - i), inCurrentMonth: false });
-    }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    days.push({ date: new Date(year, month, day), inCurrentMonth: true });
-  }
-
-  // Padding from the start of next month, filling out to a full 6
-  // rows (42 cells) so the grid's height doesn't jump between months
-  let nextMonthDay = 1;
-  while (days.length < 42) {
-    days.push({ date: new Date(year, month + 1, nextMonthDay), inCurrentMonth: false });
-    nextMonthDay++;
-  }
-
-  return days;
-}
-//#endregion
-
-function getTodosGroupedByDate() {
-  const grouped = {};
-  getTodos().forEach(function(todo) {
-    if (!todo.dueDate) return; // to-dos with no date don't appear on the calendar
-    if (!grouped[todo.dueDate]) grouped[todo.dueDate] = [];
-    grouped[todo.dueDate].push(todo);
-  });
-  return grouped;
-}
-
-function moveTodoToDate(todoId, newDateStr) {
-  if (!newDateStr) return;
-  const todos = getTodos();
-  const todo = todos.find(function(t) { return t.id === todoId; });
-  if (!todo) return;
-  todo.dueDate = newDateStr;
-  saveTodos(todos);
-  renderCurrentView();
-}
-
-function openMovePopup(todo, chipEl) {
-  if (chipEl.querySelector(".move-date-input")) return; // already open
-
-  const dateInput = document.createElement("input");
-  dateInput.type = "date";
-  dateInput.className = "move-date-input";
-  dateInput.value = todo.dueDate;
-
-  dateInput.addEventListener("change", function() {
-    moveTodoToDate(todo.id, dateInput.value);
+  (todosByDate[dateStr] || []).forEach(function(todo) {
+    cell.appendChild(buildTodoChip(todo));
   });
 
-  chipEl.appendChild(dateInput);
-  dateInput.focus();
-  if (dateInput.showPicker) dateInput.showPicker(); // opens the native picker immediately, where supported
-}
-
-function openMovePopup(todo, chipEl) {
-  // Check if a popup is already open on this chip
-  const existing = chipEl.querySelector(".move-date-input");
-  if (existing) {
-    existing.remove(); // Toggle it closed if clicked again
-    return;
-  }
-
-  const dateInput = document.createElement("input");
-  dateInput.type = "date";
-  dateInput.className = "move-date-input";
-  dateInput.value = todo.dueDate;
-
-  // Move the to-do when a new date is selected
-  dateInput.addEventListener("change", function() {
-    moveTodoToDate(todo.id, dateInput.value);
+  const addBtn = document.createElement("button");
+  addBtn.type = "button";
+  addBtn.className = "add-day-todo-btn";
+  addBtn.textContent = options.fullLabel ? "+ Add To-Do" : "+";
+  addBtn.addEventListener("click", function() {
+    openAddForm(dateStr);
   });
+  cell.appendChild(addBtn);
 
-  // Remove the input if the user clicks away without changing anything
-  dateInput.addEventListener("blur", function() {
-    dateInput.remove();
-  });
-
-  chipEl.appendChild(dateInput);
-  dateInput.focus();
-  if (dateInput.showPicker) dateInput.showPicker(); // Opens native picker
-}
-
-function renderMonthView() {
-  calendarGrid.innerHTML = "";
-
-  ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(function(name) {
-    const header = document.createElement("div");
-    header.className = "calendar-weekday-header";
-    header.textContent = name;
-    calendarGrid.appendChild(header);
-  });
-
-  const days = getMonthGridDays(currentDate.getFullYear(), currentDate.getMonth());
-  const todosByDate = getTodosGroupedByDate();
-  const todayStr = dateToString(new Date());
-
-  days.forEach(function(day) {
-    const dateStr = dateToString(day.date);
-    const cell = document.createElement("div");
-    cell.className = "calendar-day";
-    if (!day.inCurrentMonth) cell.classList.add("other-month");
-    if (dateStr === todayStr) cell.classList.add("today");
-
-    const dayNumber = document.createElement("div");
-    dayNumber.className = "calendar-day-number";
-    dayNumber.textContent = day.date.getDate();
-    cell.appendChild(dayNumber);
-
-    (todosByDate[dateStr] || []).forEach(function(todo) {
-      cell.appendChild(buildTodoChip(todo));
-    });
-
-    const addBtn = document.createElement("button");
-    addBtn.type = "button";
-    addBtn.className = "add-day-todo-btn";
-    addBtn.textContent = "+";
-    addBtn.addEventListener("click", function() {
-      openAddForm(dateStr);
-    });
-    cell.appendChild(addBtn);
-
-    // Drag-and-drop, half 2: this cell accepts whatever chip gets dropped on it
+  if (!options.noDrop) {
     cell.addEventListener("dragover", function(event) {
-      event.preventDefault(); // required — without this, the browser refuses the drop
+      event.preventDefault();
       cell.classList.add("drag-over");
     });
     cell.addEventListener("dragleave", function() {
@@ -217,24 +196,89 @@ function renderMonthView() {
       cell.classList.remove("drag-over");
       moveTodoToDate(event.dataTransfer.getData("text/plain"), dateStr);
     });
+  }
 
+  return cell;
+}
+
+function appendWeekdayHeaders() {
+  WEEKDAY_NAMES.forEach(function(name) {
+    const header = document.createElement("div");
+    header.className = "calendar-weekday-header";
+    header.textContent = name;
+    calendarGrid.appendChild(header);
+  });
+}
+
+function setGridViewClass(view) {
+  calendarGrid.classList.remove("month-grid", "week-grid", "day-grid");
+  calendarGrid.classList.add(view + "-grid");
+}
+
+function renderMonthView() {
+  setGridViewClass("month");
+  calendarGrid.innerHTML = "";
+  appendWeekdayHeaders();
+
+  const days = getMonthGridDays(currentDate.getFullYear(), currentDate.getMonth());
+  const todosByDate = getTodosGroupedByDate();
+  const todayStr = dateToString(new Date());
+
+  days.forEach(function(day) {
+    const cell = buildDayCell(day.date, todosByDate, todayStr, { otherMonth: !day.inCurrentMonth });
     calendarGrid.appendChild(cell);
   });
 }
 
+function renderWeekView() {
+  setGridViewClass("week");
+  calendarGrid.innerHTML = "";
+  appendWeekdayHeaders();
+
+  const days = getWeekDays(currentDate);
+  const todosByDate = getTodosGroupedByDate();
+  const todayStr = dateToString(new Date());
+
+  days.forEach(function(day) {
+    const cell = buildDayCell(day, todosByDate, todayStr, {});
+    calendarGrid.appendChild(cell);
+  });
+}
+
+function renderDayView() {
+  setGridViewClass("day");
+  calendarGrid.innerHTML = "";
+
+  const todosByDate = getTodosGroupedByDate();
+  const todayStr = dateToString(new Date());
+
+  const cell = buildDayCell(currentDate, todosByDate, todayStr, { fullLabel: true, noDrop: true });
+  calendarGrid.appendChild(cell);
+}
+
 function updateCalendarLabel() {
-  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  calendarLabel.textContent = currentView === "month"
-    ? `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`
-    : dateToString(currentDate);
+  if (currentView === "month") {
+    calendarLabel.textContent = `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+  } else if (currentView === "week") {
+    const days = getWeekDays(currentDate);
+    const start = days[0];
+    const end = days[6];
+    calendarLabel.textContent = start.getMonth() === end.getMonth()
+      ? `${MONTH_NAMES[start.getMonth()]} ${start.getDate()}–${end.getDate()}, ${start.getFullYear()}`
+      : `${MONTH_NAMES[start.getMonth()]} ${start.getDate()} – ${MONTH_NAMES[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
+  } else {
+    calendarLabel.textContent = formatFullDate(currentDate);
+  }
 }
 
 function renderCurrentView() {
   updateCalendarLabel();
   if (currentView === "month") {
     renderMonthView();
+  } else if (currentView === "week") {
+    renderWeekView();
   } else {
-    calendarGrid.innerHTML = `<p class="empty-message">${currentView === "day" ? "Day" : "Week"} view is coming in the next round — Month view is fully working for now.</p>`;
+    renderDayView();
   }
 }
 
@@ -253,6 +297,10 @@ viewMonthBtn.addEventListener("click", function() { switchView("month"); });
 prevBtn.addEventListener("click", function() {
   if (currentView === "month") {
     currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+  } else if (currentView === "week") {
+    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7);
+  } else {
+    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1);
   }
   renderCurrentView();
 });
@@ -260,6 +308,10 @@ prevBtn.addEventListener("click", function() {
 nextBtn.addEventListener("click", function() {
   if (currentView === "month") {
     currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+  } else if (currentView === "week") {
+    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7);
+  } else {
+    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
   }
   renderCurrentView();
 });
@@ -316,7 +368,6 @@ modalTodoConfirm.addEventListener("click", function() {
 
 modalTodoCancel.addEventListener("click", closeAddForm);
 
-// Close the modal if the user clicks the dark background (outside the modal box)
 addTodoModal.addEventListener("click", function(event) {
   if (event.target === addTodoModal) {
     closeAddForm();
