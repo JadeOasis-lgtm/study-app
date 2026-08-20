@@ -90,10 +90,16 @@
 .calendar-todo-text {
   flex: 1;
   cursor: pointer;
-  min-width: 0;         /* NEW — see note below */
-  overflow: hidden;      /* NEW */
-  text-overflow: ellipsis; /* NEW */
-  white-space: nowrap;    /* NEW */
+  min-width: 0; 
+  
+  /* Remove white-space: nowrap and text-overflow: ellipsis */
+  
+  /* Add Line Clamping: */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Change to 3 if you want it to stretch a bit more */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word; /* Prevents long unbreakable words from overflowing */
 }
 
 .calendar-todo-delete {
