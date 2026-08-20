@@ -3,7 +3,7 @@
 // intercepting network requests, which is what lets it serve files 
 // from a local cache instead of the internet.
 
-const CACHE_NAME = "pomodoro-cache-v10";
+const CACHE_NAME = "pomodoro-cache-v11";
 // Naming it with a version number lets us bust old caches later just 
 // by changing this string — you'll see how below
 
@@ -46,6 +46,7 @@ const FILES_TO_CACHE = [
 // registered (or whenever its code changes). This is our one chance 
 // to pre-download and cache everything the app needs
 self.addEventListener("install", function(event) {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
       return cache.addAll(FILES_TO_CACHE);
@@ -67,6 +68,10 @@ self.addEventListener("activate", function(event) {
           .filter(function(name) { return name !== CACHE_NAME; })
           .map(function(name) { return caches.delete(name); })
       );
+    }).then(function() {
+      return clients.claim(); // NEW — once activated, immediately take
+                                // control of any already-open tabs too,
+                                // instead of only affecting future page loads
     })
   );
 });
