@@ -26,8 +26,10 @@
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  /* This says: try to fit 7 columns, but never let a column get smaller than 80px */
+  grid-template-columns: repeat(7, minmax(80px, 1fr));
   gap: 4px;
+  overflow-x: auto; /* Adds a horizontal scrollbar if the screen is too narrow */
 }
 
 .calendar-weekday-header {
