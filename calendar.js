@@ -165,6 +165,22 @@ function buildDayCell(date, todosByDate, todayStr, options) {
   if (options.otherMonth) cell.classList.add("other-month");
   if (dateStr === todayStr) cell.classList.add("today");
 
+  // Clicking a calendar cell opens that date in Day view
+  if (!options.fullLabel) {
+    cell.addEventListener("click", function(event) {
+      // Don't switch views when clicking a to-do or button inside the cell
+      if (
+        event.target.closest(".calendar-todo-chip") ||
+        event.target.closest(".add-day-todo-btn")
+      ) {
+        return;
+      }
+
+      currentDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      switchView("day");
+    });
+  }
+
   const dayNumber = document.createElement("div");
   dayNumber.className = "calendar-day-number";
   dayNumber.textContent = options.fullLabel ? formatFullDate(date) : date.getDate();
