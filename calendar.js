@@ -67,11 +67,11 @@ function getWeekDays(date) {
   }
   return days;
 }
-//#endregion
 
 function getTodosGroupedByDate() {
   const grouped = {};
   getTodos().forEach(function(todo) {
+    if (todo.completed) return; // hidden here too, same as todo.html — still kept in localStorage for stats later
     if (!todo.dueDate) return;
     if (!grouped[todo.dueDate]) grouped[todo.dueDate] = [];
     grouped[todo.dueDate].push(todo);
