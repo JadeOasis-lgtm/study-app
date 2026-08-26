@@ -39,6 +39,7 @@ onAuthStateChanged(auth, function(user) {
 
 googleBtn.addEventListener("click", function() {
   const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
   if (isStandalonePWA()) {
     signInWithRedirect(auth, provider);
   } else {
