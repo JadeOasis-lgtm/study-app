@@ -61,6 +61,7 @@ export function startSync(user) {
     });
 
     window.dispatchEvent(new CustomEvent("cloud-data-updated"));
+    console.log("[DEBUG] cloud-data-updated dispatched");
   }, function(error) {
     console.error("Firestore sync error:", error);
   });
