@@ -45,8 +45,9 @@ function updateDueCount() {
 //#endregion
 
 //#region fundamentals
-function getCards() {
-  return JSON.parse(localStorage.getItem("flashcards")) || [];
+function saveCards(cards) {
+  localStorage.setItem("flashcards", JSON.stringify(cards));
+  syncToCloud("flashcards"); // ADD THIS LINE
 }
 
 function saveCards(cards) {
@@ -75,6 +76,7 @@ function populateDeckDropdown() {
   } else if (subjects.length > 0) {
     deckPicker.value = subjects[0].name;
     localStorage.setItem("currentDeck", subjects[0].name);
+    syncToCloud("currentDeck");
   }
 
   updateUIForDeckState(subjects.length > 0);
@@ -94,6 +96,7 @@ deckPicker.addEventListener("change", function() {
     deckPicker.value = localStorage.getItem("currentDeck") || "";
   } else {
     localStorage.setItem("currentDeck", deckPicker.value);
+    syncToCloud("currentDeck");
     newDeckRow.classList.add("hidden");
     renderCardList();
   }
@@ -107,6 +110,7 @@ newDeckConfirm.addEventListener("click", function() {
   populateDeckDropdown();
   deckPicker.value = name;
   localStorage.setItem("currentDeck", name);
+  syncToCloud("currentDeck"); 
   newDeckInput.value = "";
   newDeckRow.classList.add("hidden");
   updateUIForDeckState(true);
@@ -207,11 +211,13 @@ const reverseToggle = document.getElementById("reverse-toggle");
 
 studyBtn.addEventListener("click", function() {
   localStorage.setItem("reverseMode", reverseToggle.checked);
+  syncToCloud("reverseMode");
   window.location.href = "study.html";
 });
 
 browseBtn.addEventListener("click", function() {
   localStorage.setItem("reverseMode", reverseToggle.checked);
+  syncToCloud("reverseMode");
   window.location.href = "study.html?mode=browse";
 });
 
@@ -267,3 +273,4 @@ cancelEditBtn.addEventListener("click", stopEditingCard);
 //#endregion
 
 populateDeckDropdown();
+window.addEventListener("cloud-data-updated", populateDeckDropdown);

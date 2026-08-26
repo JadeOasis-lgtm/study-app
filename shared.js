@@ -31,6 +31,7 @@ function getSubjects() {
 
 function saveSubjects(subjects) {
   localStorage.setItem("subjects", JSON.stringify(subjects));
+  syncToCloud("subjects");
 }
 
 function addSubject(name) {
@@ -68,10 +69,8 @@ function deleteSubject(name) {
   const todos = JSON.parse(localStorage.getItem("todos")) || [];
   const remainingTodos = todos.filter(function(t) { return t.subject !== name; });
   localStorage.setItem("todos", JSON.stringify(remainingTodos));
+  syncToCloud("todos"); // ADD THIS LINE
 
-  // If the deleted subject was "currently selected" anywhere, clear
-  // that pointer so no page is left referencing a subject that no
-  // longer exists
   if (localStorage.getItem("currentSubject") === name) {
     localStorage.removeItem("currentSubject");
   }
@@ -79,7 +78,6 @@ function deleteSubject(name) {
     localStorage.removeItem("currentDeck");
   }
 }
-
 //#endregion
 
 
@@ -115,34 +113,40 @@ function calculateStreak() {
 // Only fills in a streak display if THIS page actually has one — 
 // that "if" check means shared.js is safe to include on every page, 
 // even ones with no streak element at all, without throwing errors
-const streakDisplayEl = document.getElementById("streak-display");
-if (streakDisplayEl) {
-  streakDisplayEl.textContent = `🔥 Streak: ${calculateStreak()}`;
+function updateStreakDisplay() {
+  const streakDisplayEl = document.getElementById("streak-display");
+  if (streakDisplayEl) {
+    streakDisplayEl.textContent = `🔥 Streak: ${calculateStreak()}`;
+  }
 }
+
+updateStreakDisplay();
 
 //#endregion
 
 
 //#region display flashcards due
 
-const dueBadge = document.getElementById("due-badge");
-if (dueBadge) {
-  const allCards = JSON.parse(localStorage.getItem("flashcards")) || [];
+function updateDueBadge() {
+  const dueBadge = document.getElementById("due-badge");
+  if (dueBadge) {
+    const allCards = JSON.parse(localStorage.getItem("flashcards")) || [];
+    const dueCount = allCards.filter(function(card) {
+      return new Date(card.dueDate) <= new Date();
+    }).length;
 
-  // NOTE: no .filter by deck here at all — combining every deck's 
-  // due cards into one single number is exactly what makes this 
-  // different from the per-deck count on flashcards.html
-  const dueCount = allCards.filter(function(card) {
-    return new Date(card.dueDate) <= new Date();
-  }).length;
-
-  if (dueCount > 0) {
-    dueBadge.textContent = dueCount;
-    dueBadge.classList.remove("hidden");
+    if (dueCount > 0) {
+      dueBadge.textContent = dueCount;
+      dueBadge.classList.remove("hidden");
+    } else {
+      dueBadge.classList.add("hidden"); // NEW — if a review on your phone drops this to 0, hide it here too, not just show it
+    }
   }
 }
+updateDueBadge();
 
 //#endregion
+
 
 //#region flashcard count
 
@@ -152,6 +156,7 @@ function getCardReviewHistory() {
 
 function saveCardReviewHistory(history) {
   localStorage.setItem("cardReviewHistory", JSON.stringify(history));
+  syncToCloud("cardReviewHistory");
 }
 
 // One entry per card reviewed — deliberately separate from 
@@ -168,7 +173,6 @@ function recordCardReview(subject) {
 //#endregion
 
 
-
 //#region todos
 function getTodos() {
   return JSON.parse(localStorage.getItem("todos")) || [];
@@ -176,6 +180,40 @@ function getTodos() {
 
 function saveTodos(todos) {
   localStorage.setItem("todos", JSON.stringify(todos));
+  syncToCloud("todos");
 }
 
-//#endregions
+//#endregion
+
+
+//#region cloud sync
+// shared.js is a plain (non-module) script, so it can't use a
+// top-level "import ... from" the way login.js/auth-guard.js do. A
+// dynamic import() is the plain-script equivalent — just a normal
+// function call returning a Promise — so this works with zero
+// changes to how shared.js or any page that loads it is set up.
+let syncModulePromise = null;
+function getSyncModule() {
+  if (!syncModulePromise) {
+    syncModulePromise = import("./firestore-sync.js");
+  }
+  return syncModulePromise;
+}
+
+// Call right after writing something to localStorage, with the same
+// key you just saved. Pushes it to Firestore in the background —
+// doesn't block, and if it fails (offline, e.g.), the next
+// successful save naturally catches the cloud back up.
+function syncToCloud(key) {
+  getSyncModule().then(function(module) {
+    module.pushKey(key);
+  });
+}
+//#endregion
+
+//#region live cloud updates
+window.addEventListener("cloud-data-updated", function() {
+  updateStreakDisplay();
+  updateDueBadge();
+});
+//#endregion

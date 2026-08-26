@@ -392,3 +392,4 @@ addTodoModal.addEventListener("click", function(event) {
 //#endregion
 
 switchView("month");
+window.addEventListener("cloud-data-updated", renderCurrentView);

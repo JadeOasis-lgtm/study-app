@@ -24,13 +24,10 @@ themePicker.value = currentTheme; // reflect it in the dropdown itself
 document.documentElement.style.setProperty("--accent", THEME_COLORS[currentTheme]);
 
 themePicker.addEventListener("change", function() {
-  // "change" (not "input") is the right event for a <select> — it 
-  // fires once a new option is actually chosen, rather than firing 
-  // repeatedly like "input" does on a text box while typing
-
   currentTheme = themePicker.value;
   document.documentElement.style.setProperty("--accent", THEME_COLORS[currentTheme]);
   localStorage.setItem("theme", currentTheme);
+  syncToCloud("theme"); // ADD THIS LINE
 });
 
 //#endregion
@@ -72,6 +69,7 @@ function updateDuration(mode, input) {
   DURATIONS[mode] = minutes * 60;
 
   localStorage.setItem(mode + "Duration", minutes);
+  syncToCloud(mode + "Duration");
 
   // If the mode being edited is the one currently selected, and 
   // nothing's actively running, snap the visible countdown to match 
@@ -138,6 +136,7 @@ subjectPicker.addEventListener("change", function() {
     subjectPicker.value = localStorage.getItem("currentSubject") || "";
   } else {
     localStorage.setItem("currentSubject", subjectPicker.value);
+    syncToCloud("currentSubject");
     newSubjectRow.classList.add("hidden");
   }
 });
@@ -150,6 +149,7 @@ newSubjectConfirm.addEventListener("click", function() {
   populateSubjectDropdown();
   subjectPicker.value = name;
   localStorage.setItem("currentSubject", name);
+  syncToCloud("currentSubject");
   newSubjectInput.value = "";
   newSubjectRow.classList.add("hidden");
 });
@@ -192,6 +192,7 @@ function recordSession(minutes) {
 
   sessionHistory.push(entry);
   localStorage.setItem("sessionHistory", JSON.stringify(sessionHistory));
+  syncToCloud("sessionHistory");
 
   updateGoalHistory();
   streakCount = calculateStreak();
@@ -322,6 +323,7 @@ function updateGoalHistory() {
   };
 
   localStorage.setItem("goalHistory", JSON.stringify(goalHistory));
+  syncToCloud("goalHistory");
 }
 
 //#endregion
@@ -390,6 +392,7 @@ goalInput.addEventListener("input", function() {
   // above (dividing by 0 or a negative number)
 
   localStorage.setItem("dailyGoal", dailyGoal);
+  syncToCloud("dailyGoal");
   updateGoalProgress();
   
   updateGoalHistory();
@@ -408,6 +411,7 @@ function adjustGoal(amount) {
   dailyGoal = newValue;
   goalInput.value = dailyGoal; // keeps the visible number in sync with the buttons
   localStorage.setItem("dailyGoal", dailyGoal);
+  syncToCloud("dailyGoal");
   updateGoalProgress();
   
   updateGoalHistory();

@@ -269,3 +269,5 @@ todoSubjectSelect.addEventListener("change", function() {
 
 populateSubjectDropdown();
 renderTodos();
+
+window.addEventListener("cloud-data-updated", renderTodos);

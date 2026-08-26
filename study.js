@@ -222,6 +222,7 @@ ratingButtons.querySelectorAll(".rating-btn").forEach(function(btn) {
     const index = allCards.findIndex(function(c) { return c.id === currentCard.id; });
     if (index !== -1) allCards[index] = currentCard;
     saveCards(allCards);
+    syncToCloud("flashcards");
 
     queue.shift(); // remove the just-answered card from the front of the line
 

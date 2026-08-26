@@ -1,7 +1,7 @@
 // Reads the SAME sessionHistory your Pomodoro page has been writing 
 // to all along — nothing new is being tracked here, we're just 
 // presenting existing data a different way
-const sessionHistory = JSON.parse(localStorage.getItem("sessionHistory")) || [];
+let sessionHistory = JSON.parse(localStorage.getItem("sessionHistory")) || [];
 
 function getMonday(date) {
   const d = new Date(date); // copy, so we don't mutate whatever was passed in
@@ -318,7 +318,7 @@ document.addEventListener("click", function() {
 
 //#region flashcards
 
-const cardReviewHistory = getCardReviewHistory();
+let cardReviewHistory = getCardReviewHistory();
 
 function updateCardSummaryCards() {
   const now = new Date();
@@ -347,3 +347,50 @@ updateLastWeekSummary();
 updateHistogram();
 updateLegend();
 updateCardSummaryCards()
+
+window.addEventListener("cloud-data-updated", function() {
+  sessionHistory = JSON.parse(localStorage.getItem("sessionHistory")) || [];
+  cardReviewHistory = getCardReviewHistory();
+
+  updateSummaryCards();
+  updateBestDay();
+  updateLastWeekSummary();
+  updateHistogram();
+  updateLegend();
+  updateCardSummaryCards();
+});
+
+window.addEventListener("cloud-data-updated", function() {
+  currentTheme = localStorage.getItem("theme") || "red";
+  themePicker.value = currentTheme;
+  document.documentElement.style.setProperty("--accent", THEME_COLORS[currentTheme]);
+
+  sessionHistory = JSON.parse(localStorage.getItem("sessionHistory")) || [];
+  goalHistory = JSON.parse(localStorage.getItem("goalHistory")) || {};
+
+  dailyGoal = Number(localStorage.getItem("dailyGoal")) || 60;
+  goalInput.value = dailyGoal;
+
+  populateSubjectDropdown(); // picks up currentSubject + any subjects added/removed elsewhere
+
+  // Only touch the countdown if nothing's actively running — a
+  // change on your phone shouldn't yank the rug out from under a
+  // Pomodoro you're mid-session on right now
+  if (!isRunning) {
+    DURATIONS.pomodoro = (Number(localStorage.getItem("pomodoroDuration")) || 25) * 60;
+    DURATIONS.short = (Number(localStorage.getItem("shortDuration")) || 5) * 60;
+    DURATIONS.long = (Number(localStorage.getItem("longDuration")) || 15) * 60;
+    pomodoroDurationInput.value = DURATIONS.pomodoro / 60;
+    shortDurationInput.value = DURATIONS.short / 60;
+    longDurationInput.value = DURATIONS.long / 60;
+    totalSeconds = DURATIONS[currentMode];
+    updateDisplay();
+  }
+
+  streakCount = calculateStreak();
+  updateStreakDisplay();
+  updateStatsDisplay();
+  updateHistogram();
+  updateGoalProgress();
+});
+

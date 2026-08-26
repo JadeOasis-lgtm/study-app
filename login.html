@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Study App</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="login.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <h1>Study App</h1>
+
+  <button id="google-signin-btn" type="button">Continue with Google</button>
+
+  <div id="email-toggle-row">
+    <button id="show-email-btn" type="button">or sign in with email</button>
+  </div>
+
+  <form id="email-form" class="hidden">
+    <input type="email" id="email-input" placeholder="Email" required>
+    <input type="password" id="password-input" placeholder="Password" required>
+    <button type="submit" id="email-signin-btn">Sign In</button>
+    <button type="button" id="email-signup-btn">Create Account</button>
+  </form>
+
+  <p id="auth-error" class="hidden"></p>
+
+  <!-- type="module" here too — this script imports from firebase-init.js -->
+  <script type="module" src="login.js"></script>
+</body>
+</html>
