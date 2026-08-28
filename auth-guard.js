@@ -7,6 +7,7 @@ onAuthStateChanged(auth, function(user) {
     window.location.href = "login.html";
     return;
   }
+  console.log("[DEBUG] signed in as:", user.email, user.uid); // ADD THIS LINE
   migrateIfNeeded(user).then(function() {
     startSync(user);
   });
