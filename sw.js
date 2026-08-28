@@ -3,7 +3,7 @@
 // intercepting network requests, which is what lets it serve files 
 // from a local cache instead of the internet.
 
-const CACHE_NAME = "pomodoro-cache-21";
+const CACHE_NAME = "pomodoro-cache-22";
 // Naming it with a version number lets us bust old caches later just 
 // by changing this string — you'll see how below
 

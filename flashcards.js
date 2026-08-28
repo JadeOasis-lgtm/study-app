@@ -45,13 +45,13 @@ function updateDueCount() {
 //#endregion
 
 //#region fundamentals
-function saveCards(cards) {
-  localStorage.setItem("flashcards", JSON.stringify(cards));
-  syncToCloud("flashcards"); // ADD THIS LINE
+function getCards() {
+  return JSON.parse(localStorage.getItem("flashcards")) || [];
 }
 
 function saveCards(cards) {
   localStorage.setItem("flashcards", JSON.stringify(cards));
+  syncToCloud("flashcards");
 }
 
 function populateDeckDropdown() {
