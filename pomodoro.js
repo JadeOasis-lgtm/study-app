@@ -788,3 +788,34 @@ if ("serviceWorker" in navigator) {
 }
 //#endregion
 
+
+window.addEventListener("cloud-data-updated", function() {
+  currentTheme = localStorage.getItem("theme") || "red";
+  themePicker.value = currentTheme;
+  document.documentElement.style.setProperty("--accent", THEME_COLORS[currentTheme]);
+
+  sessionHistory = JSON.parse(localStorage.getItem("sessionHistory")) || [];
+  goalHistory = JSON.parse(localStorage.getItem("goalHistory")) || {};
+
+  dailyGoal = Number(localStorage.getItem("dailyGoal")) || 60;
+  goalInput.value = dailyGoal;
+
+  populateSubjectDropdown();
+
+  if (!isRunning) {
+    DURATIONS.pomodoro = (Number(localStorage.getItem("pomodoroDuration")) || 25) * 60;
+    DURATIONS.short = (Number(localStorage.getItem("shortDuration")) || 5) * 60;
+    DURATIONS.long = (Number(localStorage.getItem("longDuration")) || 15) * 60;
+    pomodoroDurationInput.value = DURATIONS.pomodoro / 60;
+    shortDurationInput.value = DURATIONS.short / 60;
+    longDurationInput.value = DURATIONS.long / 60;
+    totalSeconds = DURATIONS[currentMode];
+    updateDisplay();
+  }
+
+  streakCount = calculateStreak();
+  updateStreakDisplay();
+  updateStatsDisplay();
+  updateHistogram();
+  updateGoalProgress();
+});
